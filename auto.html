@@ -118,7 +118,7 @@ body { font-family:"Noto Sans KR",sans-serif; background:#f4f5f7; min-height:100
             <span>상품명</span><span>모델명</span><span>대수</span><span>월 렌탈료<br>(VAT포함)</span><span>약정<br>기간</span><span>약정<br>렌탈료</span><span></span>
         </div>
         <div id="itemList"></div>
-        <button class="btn-add-item" onclick="addItem()">+ 제품 추가</button>
+        <button type="button" class="btn-add-item" onclick="addItem()">+ 제품 추가</button>
         <div class="total-section">
             <div class="total-row"><span>월 렌탈료 합계</span><span id="totalMonthly">0 원/월</span></div>
             <div class="total-row final"><span>💰 총 약정 렌탈료 (VAT포함)</span><span id="grandTotal">0 원</span></div>
@@ -129,13 +129,13 @@ body { font-family:"Noto Sans KR",sans-serif; background:#f4f5f7; min-height:100
         <div class="section-title">📝 메모 / 특이사항 <span class="optional-tag" style="font-size:12px">선택</span></div>
         <div class="form-group"><textarea id="memo" placeholder="렌탈 조건, 설치일정, 특이사항 등&#10;예) 설치비 무료 / 약정 종료 후 소유권 이전 가능"></textarea></div>
     </div>
-    <button class="btn-generate" onclick="generateQuote()">📄 견적서 생성하기</button>
+    <button type="button" class="btn-generate" onclick="generateQuote()">📄 견적서 생성하기</button>
 </div>
 
 <div id="previewScreen">
     <div class="preview-actions">
-        <button class="btn-back" onclick="goBack()">← 수정하기</button>
-        <button class="btn-download" id="btnDownload" onclick="downloadPDF()">📥 PDF 저장하기</button>
+        <button type="button" class="btn-back" onclick="goBack()">← 수정하기</button>
+        <button type="button" class="btn-download" id="btnDownload" onclick="downloadPDF()">📥 PDF 저장하기</button>
     </div>
     <div id="quoteDoc"></div>
 </div>
@@ -161,7 +161,7 @@ function addItem(){
         <input type="number" placeholder="월렌탈료" min="0" oninput="calcSub(${id});calcTotal()">
         <input type="number" placeholder="36" min="1" value="36" style="text-align:center" oninput="calcSub(${id});calcTotal()">
         <div class="item-rental" id="sub-${id}">0</div>
-        <button class="item-del" onclick="delItem(${id})">×</button>`;
+        <button type="button" class="item-del" onclick="delItem(${id})">×</button>`;
     document.getElementById("itemList").appendChild(div);
     calcTotal();
 }
@@ -280,6 +280,28 @@ async function downloadPDF(){
     finally{btn.disabled=false;btn.textContent="📥 PDF 저장하기";}
 }
 addItem();
+
+// 전화번호 자동 하이픈
+function formatPhone(input) {
+    let v = input.value.replace(/[^0-9]/g, "");
+    if (v.length <= 3) input.value = v;
+    else if (v.length <= 7) input.value = v.slice(0,3) + "-" + v.slice(3);
+    else input.value = v.slice(0,3) + "-" + v.slice(3,7) + "-" + v.slice(7,11);
+}
+
+// 사업자번호 자동 하이픈
+function formatBizNum(input) {
+    let v = input.value.replace(/[^0-9]/g, "");
+    if (v.length <= 3) input.value = v;
+    else if (v.length <= 5) input.value = v.slice(0,3) + "-" + v.slice(3);
+    else input.value = v.slice(0,3) + "-" + v.slice(3,5) + "-" + v.slice(5,10);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("issuerPhone").addEventListener("input", function(){ formatPhone(this); });
+    document.getElementById("issuerBizNum").addEventListener("input", function(){ formatBizNum(this); });
+    document.getElementById("clientPhone").addEventListener("input", function(){ formatPhone(this); });
+});
 </script>
 </body>
 </html>
