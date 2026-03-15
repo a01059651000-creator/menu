@@ -8,300 +8,338 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:"Noto Sans KR",sans-serif; background:#f4f5f7; min-height:100vh; }
-#inputScreen { padding:30px 20px 60px; max-width:780px; margin:0 auto; }
-.top-bar { display:flex; align-items:center; gap:12px; margin-bottom:28px; }
-.top-bar .logo { width:40px; height:40px; background:#1a3c5e; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; }
-.top-bar h1 { font-size:20px; font-weight:700; color:#1a3c5e; }
-.quote-num { margin-left:auto; font-size:12px; color:#888; background:#fff; border:1px solid #e0e0e0; border-radius:20px; padding:4px 14px; white-space:nowrap; }
-.section { background:#fff; border-radius:14px; padding:22px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-.section-title { font-size:13px; font-weight:700; color:#1a3c5e; margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #e8f0fe; }
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.form-group { display:flex; flex-direction:column; gap:5px; }
-.form-group.full { grid-column:1/-1; }
-.form-group label { font-size:12px; font-weight:600; color:#555; }
-.form-group input,.form-group textarea { padding:10px 12px; border:1.5px solid #e8e8e8; border-radius:8px; font-size:13px; font-family:inherit; outline:none; background:#fafafa; transition:border-color .2s; }
-.form-group input:focus,.form-group textarea:focus { border-color:#1a3c5e; background:#fff; }
-.form-group textarea { resize:vertical; min-height:70px; }
-.optional-tag { font-size:10px; color:#aaa; font-weight:400; margin-left:4px; }
-.items-header { display:grid; grid-template-columns:1.6fr 1.2fr 55px 110px 65px 120px 34px; gap:6px; padding:0 4px 8px; border-bottom:1px solid #eee; margin-bottom:8px; }
-.items-header span { font-size:10px; font-weight:700; color:#888; text-align:center; line-height:1.4; }
-.items-header span:first-child,.items-header span:nth-child(2) { text-align:left; }
-.item-row { display:grid; grid-template-columns:1.6fr 1.2fr 55px 110px 65px 120px 34px; gap:6px; margin-bottom:6px; align-items:center; }
-.item-row input { padding:9px 8px; border:1.5px solid #e8e8e8; border-radius:7px; font-size:12px; font-family:inherit; outline:none; background:#fafafa; width:100%; text-align:right; transition:border-color .2s; }
-.item-row input.left { text-align:left; }
-.item-row input:focus { border-color:#1a3c5e; background:#fff; }
-.item-rental { font-size:12px; font-weight:700; color:#c0392b; text-align:right; padding:0 4px; }
-.item-del { width:30px; height:30px; background:#fee2e2; border:none; border-radius:7px; color:#ef4444; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.btn-add-item { width:100%; padding:10px; background:#f0f4ff; border:1.5px dashed #c5d5f5; border-radius:8px; color:#1a3c5e; font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; margin-top:8px; }
-.total-section { background:#f0f5ff; border-radius:10px; padding:16px 18px; margin-top:14px; }
-.total-row { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:#555; }
-.total-row.final { border-top:2px solid #1a3c5e; margin-top:8px; padding-top:12px; font-size:17px; font-weight:700; color:#1a3c5e; }
-.vat-note { font-size:11px; color:#888; margin-top:6px; text-align:right; }
-.btn-generate { width:100%; padding:18px; background:#1a3c5e; color:#fff; border:none; border-radius:12px; font-size:16px; font-weight:700; font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(26,60,94,.3); margin-top:8px; }
-@media(max-width:640px){ .form-grid{grid-template-columns:1fr;} }
-#previewScreen { display:none; padding:20px; background:#f4f5f7; min-height:100vh; }
-.preview-actions { max-width:794px; margin:0 auto 16px; display:flex; gap:10px; }
-.btn-back { padding:10px 20px; background:#fff; border:1.5px solid #ddd; border-radius:8px; font-size:13px; font-family:inherit; cursor:pointer; font-weight:600; color:#555; }
-.btn-download { padding:10px 24px; background:#1a3c5e; border:none; border-radius:8px; font-size:13px; font-family:inherit; cursor:pointer; font-weight:700; color:#fff; box-shadow:0 3px 10px rgba(26,60,94,.25); }
-.btn-download:disabled { background:#aaa; cursor:not-allowed; box-shadow:none; }
-#quoteDoc { background:#fff; width:794px; margin:0 auto; padding:48px 52px; font-family:"Noto Sans KR",sans-serif; box-shadow:0 8px 30px rgba(0,0,0,.12); border-radius:4px; }
-.q-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px; padding-bottom:18px; border-bottom:3px solid #1a3c5e; }
-.q-title { font-size:30px; font-weight:700; color:#1a3c5e; letter-spacing:8px; }
-.q-meta { text-align:right; font-size:12px; color:#666; line-height:2; }
-.q-meta strong { color:#1a3c5e; display:inline-block; width:70px; }
-.q-parties { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
-.q-party { border:1.5px solid #dde4f0; border-radius:8px; padding:14px 16px; }
-.q-party-label { font-size:10px; font-weight:700; color:#fff; background:#1a3c5e; display:inline-block; padding:2px 10px; border-radius:20px; margin-bottom:8px; }
-.q-party-name { font-size:15px; font-weight:700; color:#1a3c5e; margin-bottom:4px; }
-.q-party-info { font-size:12px; color:#666; line-height:1.8; }
-.q-summary { background:linear-gradient(135deg,#1a3c5e,#2d5f8a); color:#fff; border-radius:10px; padding:16px 22px; margin-bottom:22px; display:flex; justify-content:space-between; align-items:center; }
-.q-summary .s-label { font-size:11px; opacity:.8; margin-bottom:3px; }
-.q-summary .s-val { font-size:20px; font-weight:700; }
-.q-summary .s-note { font-size:10px; opacity:.65; margin-top:2px; }
-.q-table { width:100%; border-collapse:collapse; margin-bottom:16px; }
-.q-table thead th { background:#1a3c5e; color:#fff; padding:10px; font-size:11px; font-weight:600; text-align:center; }
-.q-table thead th:first-child { text-align:left; }
-.q-table tbody tr { border-bottom:1px solid #f0f0f0; }
-.q-table tbody tr:nth-child(even) { background:#f8faff; }
-.q-table tbody td { padding:10px; font-size:12px; text-align:center; color:#333; vertical-align:middle; }
-.q-table tbody td:first-child { text-align:left; }
-.q-table tbody td.model { color:#888; font-size:11px; margin-top:2px; }
-.q-table tbody td.monthly { font-weight:600; color:#1a3c5e; }
-.q-table tbody td.rental { font-weight:700; color:#c0392b; }
-.q-totals { display:flex; justify-content:flex-end; margin-bottom:20px; }
-.q-totals-box { width:290px; border:1.5px solid #dde4f0; border-radius:8px; overflow:hidden; }
-.q-total-row { display:flex; justify-content:space-between; padding:9px 14px; font-size:13px; border-bottom:1px solid #f0f0f0; }
-.q-total-row:last-child { border-bottom:none; }
-.q-total-row.grand { background:#1a3c5e; color:#fff; font-weight:700; font-size:14px; }
-.q-memo { background:#fffbf0; border:1px solid #ffe4a0; border-radius:8px; padding:14px 16px; margin-bottom:22px; }
-.q-memo-title { font-size:11px; font-weight:700; color:#b8860b; margin-bottom:5px; }
-.q-memo-content { font-size:12px; color:#555; line-height:1.8; }
-.q-footer { border-top:1px solid #eee; padding-top:16px; display:flex; justify-content:space-between; align-items:flex-end; }
-.q-footer .validity { font-size:11px; color:#999; line-height:1.9; }
-.q-footer .issuer { text-align:right; }
-.q-footer .issuer-co { font-size:14px; font-weight:700; color:#1a3c5e; }
-.q-footer .issuer-person { font-size:13px; color:#444; margin-top:3px; }
-.q-footer .issuer-phone { font-size:12px; color:#888; margin-top:2px; }
-@media print { body{background:white;} #previewScreen{padding:0;background:white;} .preview-actions{display:none;} #quoteDoc{box-shadow:none;width:100%;padding:15mm 12mm;} }
-@media(max-width:840px){ #quoteDoc{width:100%;padding:24px;} .q-parties{grid-template-columns:1fr;} }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Noto Sans KR',sans-serif; background:#f4f5f7; min-height:100vh; }
+
+        #inputScreen { padding:30px 20px 60px; max-width:720px; margin:0 auto; }
+        .top-bar { display:flex; align-items:center; gap:12px; margin-bottom:28px; }
+        .top-bar .logo { width:40px; height:40px; background:#1a3c5e; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; }
+        .top-bar h1 { font-size:20px; font-weight:700; color:#1a3c5e; }
+        .top-bar .qnum { margin-left:auto; font-size:12px; color:#888; background:#fff; border:1px solid #e0e0e0; border-radius:20px; padding:4px 14px; white-space:nowrap; }
+
+        .section { background:#fff; border-radius:14px; padding:22px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+        .stitle { font-size:13px; font-weight:700; color:#1a3c5e; margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #e8f0fe; }
+        .fgrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .fg { display:flex; flex-direction:column; gap:5px; }
+        .fg.full { grid-column:1/-1; }
+        .fg label { font-size:12px; font-weight:600; color:#555; }
+        .fg input, .fg textarea { padding:10px 12px; border:1.5px solid #e8e8e8; border-radius:8px; font-size:13px; font-family:inherit; outline:none; transition:border-color 0.2s; background:#fafafa; }
+        .fg input:focus, .fg textarea:focus { border-color:#1a3c5e; background:#fff; }
+        .fg textarea { resize:vertical; min-height:70px; }
+        .opt { font-size:10px; color:#aaa; font-weight:400; margin-left:4px; }
+
+        /* 품목 */
+        .ihead { display:grid; grid-template-columns:1.8fr 1fr 1fr 60px 1.1fr 36px; gap:6px; padding:0 4px 8px; border-bottom:1px solid #eee; margin-bottom:8px; }
+        .ihead span { font-size:11px; font-weight:600; color:#888; text-align:center; line-height:1.4; }
+        .ihead span:first-child { text-align:left; }
+        .irow { display:grid; grid-template-columns:1.8fr 1fr 1fr 60px 1.1fr 36px; gap:6px; margin-bottom:6px; align-items:center; }
+        .irow input { padding:9px 8px; border:1.5px solid #e8e8e8; border-radius:7px; font-size:12px; font-family:inherit; outline:none; text-align:right; background:#fafafa; transition:border-color 0.2s; width:100%; }
+        .irow input.left { text-align:left; }
+        .irow input:focus { border-color:#1a3c5e; background:#fff; }
+        .isub { font-size:12px; font-weight:600; color:#1a3c5e; text-align:right; padding:0 4px; }
+        .idel { width:32px; height:32px; background:#fee2e2; border:none; border-radius:7px; color:#ef4444; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .btn-add { width:100%; padding:10px; background:#f0f4ff; border:1.5px dashed #c5d5f5; border-radius:8px; color:#1a3c5e; font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; margin-top:8px; }
+        .btn-add:hover { background:#e0eaff; }
+
+        .totals { background:#f0f5ff; border-radius:10px; padding:16px 18px; margin-top:14px; }
+        .trow { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:#555; }
+        .trow.final { border-top:2px solid #1a3c5e; margin-top:8px; padding-top:12px; font-size:17px; font-weight:700; color:#1a3c5e; }
+        .tnote { font-size:11px; color:#888; margin-top:6px; text-align:right; }
+
+        .btn-gen { width:100%; padding:18px; background:#1a3c5e; color:#fff; border:none; border-radius:12px; font-size:16px; font-weight:700; font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(26,60,94,0.3); margin-top:8px; }
+        .btn-gen:hover { background:#0f2a45; }
+
+        @media(max-width:600px) {
+            .fgrid { grid-template-columns:1fr; }
+            .ihead, .irow { grid-template-columns:1.5fr 0.8fr 0.9fr 50px 1fr 32px; }
+            .ihead span, .irow input { font-size:10px; }
+        }
+
+        /* 미리보기 */
+        #previewScreen { display:none; padding:20px; background:#f4f5f7; min-height:100vh; }
+        .pactions { max-width:794px; margin:0 auto 16px; display:flex; gap:10px; }
+        .btn-back { padding:10px 20px; background:#fff; border:1.5px solid #ddd; border-radius:8px; font-size:13px; font-family:inherit; cursor:pointer; font-weight:600; color:#555; }
+        .btn-dl { padding:10px 24px; background:#1a3c5e; border:none; border-radius:8px; font-size:13px; font-family:inherit; cursor:pointer; font-weight:700; color:#fff; }
+        .btn-dl:disabled { background:#aaa; cursor:not-allowed; }
+
+        /* 견적서 */
+        #quoteDoc { background:#fff; width:794px; margin:0 auto; padding:48px 52px; font-family:'Noto Sans KR',sans-serif; box-shadow:0 8px 30px rgba(0,0,0,0.12); }
+        .qh { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:32px; padding-bottom:20px; border-bottom:3px solid #1a3c5e; }
+        .qt { font-size:30px; font-weight:700; color:#1a3c5e; letter-spacing:8px; }
+        .qm { text-align:right; font-size:12px; color:#666; line-height:2; }
+        .qm strong { color:#1a3c5e; display:inline-block; width:65px; }
+        .qparties { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+        .qparty { border:1.5px solid #dde4f0; border-radius:8px; padding:14px 16px; }
+        .qplabel { font-size:10px; font-weight:700; color:#fff; background:#1a3c5e; display:inline-block; padding:2px 10px; border-radius:20px; margin-bottom:10px; }
+        .qpname { font-size:15px; font-weight:700; color:#1a3c5e; margin-bottom:5px; }
+        .qpinfo { font-size:12px; color:#666; line-height:1.8; }
+        .qsum { background:linear-gradient(135deg,#1a3c5e,#2d5f8a); color:#fff; border-radius:10px; padding:16px 22px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; }
+        .qsum .sl { font-size:12px; opacity:0.8; margin-bottom:4px; }
+        .qsum .sv { font-size:22px; font-weight:700; }
+        .qsum .sn { font-size:11px; opacity:0.7; margin-top:2px; }
+        table.qt2 { width:100%; border-collapse:collapse; margin-bottom:18px; }
+        table.qt2 thead th { background:#1a3c5e; color:#fff; padding:10px 12px; font-size:12px; font-weight:600; text-align:center; }
+        table.qt2 thead th:first-child { text-align:left; }
+        table.qt2 tbody tr { border-bottom:1px solid #f0f0f0; }
+        table.qt2 tbody tr:nth-child(even) { background:#f8faff; }
+        table.qt2 tbody td { padding:11px 12px; font-size:13px; text-align:center; color:#333; }
+        table.qt2 tbody td:first-child { text-align:left; font-weight:500; }
+        table.qt2 tbody td.mc { font-weight:600; color:#1a3c5e; }
+        table.qt2 tbody td.tc { font-weight:700; color:#c0392b; }
+        .qtotals { display:flex; justify-content:flex-end; margin-bottom:20px; }
+        .qtbox { width:280px; border:1.5px solid #dde4f0; border-radius:8px; overflow:hidden; }
+        .qtrow { display:flex; justify-content:space-between; padding:9px 14px; font-size:13px; border-bottom:1px solid #f0f0f0; }
+        .qtrow:last-child { border-bottom:none; }
+        .qtrow.grand { background:#1a3c5e; color:#fff; font-weight:700; font-size:14px; }
+        .qmemo { background:#fffbf0; border:1px solid #ffe4a0; border-radius:8px; padding:14px 16px; margin-bottom:24px; }
+        .qmemo-t { font-size:11px; font-weight:700; color:#b8860b; margin-bottom:6px; }
+        .qmemo-c { font-size:12px; color:#555; line-height:1.8; }
+        .qfoot { border-top:1px solid #eee; padding-top:18px; display:flex; justify-content:space-between; align-items:flex-end; }
+        .qfoot .val { font-size:11px; color:#999; line-height:1.8; }
+        .qfoot .iss { text-align:right; }
+        .qfoot .ico { font-size:14px; font-weight:700; color:#1a3c5e; }
+        .qfoot .ip { font-size:13px; color:#444; margin-top:3px; }
+        .qfoot .iph { font-size:12px; color:#888; margin-top:2px; }
+
+        @media(max-width:840px) { #quoteDoc{width:100%;padding:24px;} .qparties{grid-template-columns:1fr;} .qsum{flex-direction:column;gap:12px;} }
+        @media print { body{background:white;} #previewScreen{padding:0;background:white;} .pactions{display:none;} #quoteDoc{box-shadow:none;width:100%;padding:15mm 12mm;} }
     </style>
 </head>
 <body>
+
 <div id="inputScreen">
     <div class="top-bar">
         <div class="logo">📋</div>
         <h1>렌탈 견적서 발행</h1>
-        <div class="quote-num" id="quoteNumDisplay"></div>
+        <div class="qnum" id="qnumDisplay"></div>
     </div>
+
     <div class="section">
-        <div class="section-title">🏢 발행처 (우리 회사)</div>
-        <div class="form-grid">
-            <div class="form-group"><label>회사명 <span style="color:red">*</span></label><input type="text" id="issuerName" placeholder="(주)정수기마켓"></div>
-            <div class="form-group"><label>사업자등록번호 <span class="optional-tag">선택</span></label><input type="text" id="issuerBizNum" placeholder="000-00-00000"></div>
-            <div class="form-group"><label>담당자명 <span style="color:red">*</span></label><input type="text" id="issuerPerson" placeholder="홍길동"></div>
-            <div class="form-group"><label>연락처 <span class="optional-tag">선택</span></label><input type="text" id="issuerPhone" placeholder="010-0000-0000"></div>
+        <div class="stitle">🏢 발행처 (우리 회사)</div>
+        <div class="fgrid">
+            <div class="fg"><label>회사명 <span style="color:red">*</span></label><input type="text" id="issuerName" placeholder="(주)정수기마켓"></div>
+            <div class="fg"><label>사업자등록번호 <span class="opt">선택</span></label><input type="text" id="issuerBizNum" placeholder="000-00-00000" maxlength="12"></div>
+            <div class="fg"><label>담당자명 <span style="color:red">*</span></label><input type="text" id="issuerPerson" placeholder="홍길동"></div>
+            <div class="fg"><label>연락처 <span class="opt">선택</span></label><input type="text" id="issuerPhone" placeholder="010-0000-0000" maxlength="13"></div>
         </div>
     </div>
+
     <div class="section">
-        <div class="section-title">👤 수신처 (고객)</div>
-        <div class="form-grid">
-            <div class="form-group"><label>고객명 / 회사명 <span style="color:red">*</span></label><input type="text" id="clientName" placeholder="홍길동 or (주)고객사"></div>
-            <div class="form-group"><label>연락처 <span class="optional-tag">선택</span></label><input type="text" id="clientPhone" placeholder="010-0000-0000"></div>
-            <div class="form-group full"><label>주소 <span class="optional-tag">선택</span></label><input type="text" id="clientAddress" placeholder="서울시 강남구 ..."></div>
+        <div class="stitle">👤 수신처 (고객)</div>
+        <div class="fgrid">
+            <div class="fg"><label>고객명 / 회사명 <span style="color:red">*</span></label><input type="text" id="clientName" placeholder="홍길동"></div>
+            <div class="fg"><label>연락처 <span class="opt">선택</span></label><input type="text" id="clientPhone" placeholder="010-0000-0000" maxlength="13"></div>
+            <div class="fg full"><label>주소 <span class="opt">선택</span></label><input type="text" id="clientAddress" placeholder="서울시 강남구 ..."></div>
         </div>
     </div>
+
     <div class="section">
-        <div class="section-title">📦 렌탈 품목 <span style="font-size:11px;font-weight:400;color:#888;margin-left:4px">(VAT 포함 기준)</span></div>
-        <div class="items-header">
-            <span>상품명</span><span>모델명</span><span>대수</span><span>월 렌탈료<br>(VAT포함)</span><span>약정<br>기간</span><span>약정<br>렌탈료</span><span></span>
+        <div class="stitle">📦 렌탈 품목 <span style="font-size:11px;font-weight:400;color:#888;margin-left:6px">(부가세 포함 금액 기준)</span></div>
+        <div class="ihead">
+            <span>제품명</span>
+            <span>월 렌탈료<br>(VAT포함)</span>
+            <span>약정기간<br>(개월)</span>
+            <span>할인율</span>
+            <span>약정총액<br>(원)</span>
+            <span></span>
         </div>
         <div id="itemList"></div>
-        <button type="button" class="btn-add-item" onclick="addItem()">+ 제품 추가</button>
-        <div class="total-section">
-            <div class="total-row"><span>월 렌탈료 합계</span><span id="totalMonthly">0 원/월</span></div>
-            <div class="total-row final"><span>💰 총 약정 렌탈료 (VAT포함)</span><span id="grandTotal">0 원</span></div>
-            <div class="vat-note">※ 모든 금액은 부가세(VAT 10%) 포함 금액입니다</div>
+        <button type="button" class="btn-add" id="btnAddItem">+ 제품 추가</button>
+        <div class="totals">
+            <div class="trow"><span>총 월 렌탈료</span><span id="totalMonthly">0 원/월</span></div>
+            <div class="trow"><span>총 약정 금액</span><span id="totalContract">0 원</span></div>
+            <div class="trow final"><span>💰 총 견적 금액 (VAT포함)</span><span id="grandTotal">0 원</span></div>
+            <div class="tnote">※ 모든 금액은 부가세(VAT 10%) 포함 금액입니다</div>
         </div>
     </div>
+
     <div class="section">
-        <div class="section-title">📝 메모 / 특이사항 <span class="optional-tag" style="font-size:12px">선택</span></div>
-        <div class="form-group"><textarea id="memo" placeholder="렌탈 조건, 설치일정, 특이사항 등&#10;예) 설치비 무료 / 약정 종료 후 소유권 이전 가능"></textarea></div>
+        <div class="stitle">📝 메모 / 특이사항 <span class="opt" style="font-size:12px">선택</span></div>
+        <div class="fg"><textarea id="memo" placeholder="렌탈 조건, 설치일정, 특이사항 등&#10;예) 설치비 무료 / 약정 종료 후 소유권 이전 가능"></textarea></div>
     </div>
-    <button type="button" class="btn-generate" onclick="generateQuote()">📄 견적서 생성하기</button>
+
+    <button type="button" class="btn-gen" id="btnGenerate">📄 견적서 생성하기</button>
 </div>
 
 <div id="previewScreen">
-    <div class="preview-actions">
-        <button type="button" class="btn-back" onclick="goBack()">← 수정하기</button>
-        <button type="button" class="btn-download" id="btnDownload" onclick="downloadPDF()">📥 PDF 저장하기</button>
+    <div class="pactions">
+        <button type="button" class="btn-back" id="btnBack">← 수정하기</button>
+        <button type="button" class="btn-dl" id="btnDownload">📥 PDF 저장하기</button>
     </div>
     <div id="quoteDoc"></div>
 </div>
 
 <script>
-function genQuoteNum(){const d=new Date();const ymd=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;return `Q-${ymd}-${String(Math.floor(Math.random()*900)+100)}`;}
-const QUOTE_NUM=genQuoteNum();
-document.getElementById("quoteNumDisplay").textContent=`견적번호: ${QUOTE_NUM}`;
-const today=new Date();
-const dateStr=`${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`;
-let itemCount=0;
+(function() {
+    // 견적번호
+    var d = new Date();
+    var ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+    var QUOTE_NUM = 'Q-' + ymd + '-' + String(Math.floor(Math.random()*900)+100);
+    var dateStr = d.getFullYear() + '년 ' + (d.getMonth()+1) + '월 ' + d.getDate() + '일';
+    document.getElementById('qnumDisplay').textContent = '견적번호: ' + QUOTE_NUM;
 
-function addItem(){
-    itemCount++;
-    const id=itemCount;
-    const div=document.createElement("div");
-    div.className="item-row";
-    div.id=`item-${id}`;
-    div.innerHTML=`
-        <input type="text" class="left" placeholder="상품명 (예: 코웨이 정수기)" oninput="calcTotal()">
-        <input type="text" class="left" placeholder="모델명 (예: CHP-7210N)" oninput="calcTotal()">
-        <input type="number" placeholder="1" min="1" value="1" style="text-align:center" oninput="calcSub(${id});calcTotal()">
-        <input type="number" placeholder="월렌탈료" min="0" oninput="calcSub(${id});calcTotal()">
-        <input type="number" placeholder="36" min="1" value="36" style="text-align:center" oninput="calcSub(${id});calcTotal()">
-        <div class="item-rental" id="sub-${id}">0</div>
-        <button type="button" class="item-del" onclick="delItem(${id})">×</button>`;
-    document.getElementById("itemList").appendChild(div);
-    calcTotal();
-}
+    var itemCount = 0;
 
-function delItem(id){const el=document.getElementById(`item-${id}`);if(el)el.remove();calcTotal();}
-
-function calcSub(id){
-    const row=document.getElementById(`item-${id}`);
-    if(!row)return{monthly:0,rental:0};
-    const inputs=row.querySelectorAll("input");
-    const qty=parseFloat(inputs[2].value)||0;
-    const monthly=parseFloat(inputs[3].value)||0;
-    const months=parseFloat(inputs[4].value)||0;
-    const monthlyTotal=qty*monthly;
-    const rental=monthlyTotal*months;
-    document.getElementById(`sub-${id}`).textContent=rental.toLocaleString();
-    return{monthly:monthlyTotal,rental};
-}
-
-function calcTotal(){
-    const rows=document.querySelectorAll(".item-row");
-    let tm=0,tr=0;
-    rows.forEach(row=>{const id=parseInt(row.id.replace("item-",""));const{monthly,rental}=calcSub(id);tm+=monthly;tr+=rental;});
-    document.getElementById("totalMonthly").textContent=tm.toLocaleString()+" 원/월";
-    document.getElementById("grandTotal").textContent=tr.toLocaleString()+" 원";
-}
-
-function generateQuote(){
-    const issuerName=document.getElementById("issuerName").value.trim();
-    const issuerPerson=document.getElementById("issuerPerson").value.trim();
-    const clientName=document.getElementById("clientName").value.trim();
-    if(!issuerName||!issuerPerson){alert("회사명과 담당자명을 입력해주세요.");return;}
-    if(!clientName){alert("고객명을 입력해주세요.");return;}
-    const rows=document.querySelectorAll(".item-row");
-    if(!rows.length){alert("제품을 하나 이상 추가해주세요.");return;}
-    const issuerBizNum=document.getElementById("issuerBizNum").value.trim();
-    const issuerPhone=document.getElementById("issuerPhone").value.trim();
-    const clientPhone=document.getElementById("clientPhone").value.trim();
-    const clientAddress=document.getElementById("clientAddress").value.trim();
-    const memo=document.getElementById("memo").value.trim();
-    let itemsHTML="";
-    let totalMonthly=0,totalRental=0;
-    rows.forEach((row,i)=>{
-        const inputs=row.querySelectorAll("input");
-        const productName=inputs[0].value.trim()||"(미입력)";
-        const modelName=inputs[1].value.trim();
-        const qty=parseFloat(inputs[2].value)||0;
-        const monthly=parseFloat(inputs[3].value)||0;
-        const months=parseFloat(inputs[4].value)||0;
-        const monthlyTotal=qty*monthly;
-        const rental=monthlyTotal*months;
-        totalMonthly+=monthlyTotal;
-        totalRental+=rental;
-        itemsHTML+=`<tr>
-            <td><div style="font-weight:600">${productName}</div>${modelName?`<div style="color:#888;font-size:11px;margin-top:2px">${modelName}</div>`:""}</td>
-            <td>${qty}대</td>
-            <td class="monthly">${monthly.toLocaleString()}원</td>
-            <td>${months}개월</td>
-            <td class="monthly">${monthlyTotal.toLocaleString()}원/월</td>
-            <td class="rental">${rental.toLocaleString()}원</td>
-        </tr>`;
+    // 제품 추가
+    document.getElementById('btnAddItem').addEventListener('click', function() {
+        itemCount++;
+        var id = itemCount;
+        var div = document.createElement('div');
+        div.className = 'irow';
+        div.id = 'item-' + id;
+        div.innerHTML =
+            '<input type="text" class="left" placeholder="제품명 (예: 코웨이 정수기)" oninput="calcTotal()">' +
+            '<input type="number" placeholder="0" min="0" oninput="calcSub(' + id + ');calcTotal()">' +
+            '<input type="number" placeholder="36" min="1" value="36" oninput="calcSub(' + id + ');calcTotal()">' +
+            '<input type="number" placeholder="0" min="0" max="100" value="0" oninput="calcSub(' + id + ');calcTotal()">' +
+            '<div class="isub" id="sub-' + id + '">0</div>' +
+            '<button type="button" class="idel" onclick="delItem(' + id + ')">×</button>';
+        document.getElementById('itemList').appendChild(div);
+        calcTotal();
     });
-    document.getElementById("quoteDoc").innerHTML=`
-        <div class="q-header"><div class="q-title">렌탈 견적서</div><div class="q-meta"><div><strong>견적번호</strong> ${QUOTE_NUM}</div><div><strong>발행일자</strong> ${dateStr}</div><div><strong>유효기간</strong> 발행일로부터 30일</div></div></div>
-        <div class="q-parties">
-            <div class="q-party"><div class="q-party-label">수 신</div><div class="q-party-name">${clientName} 귀하</div><div class="q-party-info">${clientPhone?"📞 "+clientPhone:""}${clientPhone&&clientAddress?"<br>":""}${clientAddress?"📍 "+clientAddress:""}${!clientPhone&&!clientAddress?"-":""}</div></div>
-            <div class="q-party"><div class="q-party-label">발 신</div><div class="q-party-name">${issuerName}</div><div class="q-party-info">${issuerBizNum?"사업자등록번호: "+issuerBizNum+"<br>":""}담당자: ${issuerPerson}${issuerPhone?"<br>📞 "+issuerPhone:""}</div></div>
-        </div>
-        <div class="q-summary">
-            <div><div class="s-label">월 렌탈료 합계 (VAT포함)</div><div class="s-val">${totalMonthly.toLocaleString()} 원/월</div></div>
-            <div style="text-align:right"><div class="s-label">총 약정 렌탈료</div><div class="s-val">${totalRental.toLocaleString()} 원</div><div class="s-note">※ 부가세(VAT 10%) 포함</div></div>
-        </div>
-        <table class="q-table">
-            <thead><tr><th style="width:28%">상품명 / 모델명</th><th style="width:8%">대수</th><th style="width:15%">월 렌탈료</th><th style="width:10%">약정기간</th><th style="width:17%">월 렌탈료 합계</th><th style="width:17%">약정 렌탈료</th></tr></thead>
-            <tbody>${itemsHTML}</tbody>
-        </table>
-        <div class="q-totals"><div class="q-totals-box">
-            <div class="q-total-row"><span>월 렌탈료 합계</span><span>${totalMonthly.toLocaleString()} 원/월</span></div>
-            <div class="q-total-row grand"><span>총 약정 렌탈료</span><span>${totalRental.toLocaleString()} 원</span></div>
-        </div></div>
-        ${memo?`<div class="q-memo"><div class="q-memo-title">📌 메모 / 특이사항</div><div class="q-memo-content">${memo.replace(/
-/g,"<br>")}</div></div>`:""}
-        <div class="q-footer">
-            <div class="validity">※ 본 견적서는 발행일로부터 <strong>30일간</strong> 유효합니다.<br>※ 모든 금액은 부가세(VAT 10%) <strong>포함</strong> 금액입니다.<br>※ 문의사항은 담당자에게 연락 주시기 바랍니다.</div>
-            <div class="issuer"><div class="issuer-co">${issuerName}</div><div class="issuer-person">담당 : ${issuerPerson}</div>${issuerPhone?`<div class="issuer-phone">${issuerPhone}</div>`:""}</div>
-        </div>`;
-    window._quoteClient=clientName;
-    window._quoteNum=QUOTE_NUM;
-    document.getElementById("inputScreen").style.display="none";
-    document.getElementById("previewScreen").style.display="block";
-    window.scrollTo({top:0,behavior:"smooth"});
-}
 
-function goBack(){
-    document.getElementById("previewScreen").style.display="none";
-    document.getElementById("inputScreen").style.display="block";
-    window.scrollTo({top:0,behavior:"smooth"});
-}
+    window.delItem = function(id) {
+        var el = document.getElementById('item-' + id);
+        if (el) el.remove();
+        calcTotal();
+    };
 
-async function downloadPDF(){
-    const btn=document.getElementById("btnDownload");
-    btn.disabled=true;btn.textContent="⏳ PDF 생성 중...";
-    try{
-        const el=document.getElementById("quoteDoc");
-        const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false});
-        const imgData=canvas.toDataURL("image/jpeg",0.95);
-        const{jsPDF}=window.jspdf;
-        const pdf=new jsPDF({orientation:"p",unit:"mm",format:"a4"});
-        const pW=pdf.internal.pageSize.getWidth();
-        const pH=pdf.internal.pageSize.getHeight();
-        const imgH=pW*(canvas.height/canvas.width);
-        if(imgH<=pH){pdf.addImage(imgData,"JPEG",0,0,pW,imgH);}
-        else{let y=0,r=imgH;while(r>0){pdf.addImage(imgData,"JPEG",0,-y,pW,imgH);r-=pH;y+=pH;if(r>0)pdf.addPage();}}
-        pdf.save(`렌탈견적서_${window._quoteClient}_${window._quoteNum}.pdf`);
-    }catch(e){alert("PDF 생성 오류: "+e.message);}
-    finally{btn.disabled=false;btn.textContent="📥 PDF 저장하기";}
-}
-addItem();
+    window.calcSub = function(id) {
+        var row = document.getElementById('item-' + id);
+        if (!row) return { monthly: 0, total: 0 };
+        var inputs = row.querySelectorAll('input');
+        var monthly = parseFloat(inputs[1].value) || 0;
+        var months = parseFloat(inputs[2].value) || 0;
+        var disc = parseFloat(inputs[3].value) || 0;
+        var discMonthly = Math.round(monthly * (1 - disc / 100));
+        var sub = Math.round(discMonthly * months);
+        document.getElementById('sub-' + id).textContent = sub.toLocaleString();
+        return { monthly: discMonthly, total: sub };
+    };
 
-// 전화번호 자동 하이픈
-function formatPhone(input) {
-    let v = input.value.replace(/[^0-9]/g, "");
-    if (v.length <= 3) input.value = v;
-    else if (v.length <= 7) input.value = v.slice(0,3) + "-" + v.slice(3);
-    else input.value = v.slice(0,3) + "-" + v.slice(3,7) + "-" + v.slice(7,11);
-}
+    window.calcTotal = function() {
+        var rows = document.querySelectorAll('.irow');
+        var totalMonthly = 0, totalContract = 0;
+        rows.forEach(function(row) {
+            var id = parseInt(row.id.replace('item-', ''));
+            var r = calcSub(id);
+            totalMonthly += r.monthly;
+            totalContract += r.total;
+        });
+        document.getElementById('totalMonthly').textContent = totalMonthly.toLocaleString() + ' 원/월';
+        document.getElementById('totalContract').textContent = totalContract.toLocaleString() + ' 원';
+        document.getElementById('grandTotal').textContent = totalContract.toLocaleString() + ' 원';
+    };
 
-// 사업자번호 자동 하이픈
-function formatBizNum(input) {
-    let v = input.value.replace(/[^0-9]/g, "");
-    if (v.length <= 3) input.value = v;
-    else if (v.length <= 5) input.value = v.slice(0,3) + "-" + v.slice(3);
-    else input.value = v.slice(0,3) + "-" + v.slice(3,5) + "-" + v.slice(5,10);
-}
+    // 자동 하이픈
+    function formatPhone(input) {
+        var v = input.value.replace(/[^0-9]/g, '');
+        if (v.length <= 3) input.value = v;
+        else if (v.length <= 7) input.value = v.slice(0,3) + '-' + v.slice(3);
+        else input.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
+    }
+    function formatBizNum(input) {
+        var v = input.value.replace(/[^0-9]/g, '');
+        if (v.length <= 3) input.value = v;
+        else if (v.length <= 5) input.value = v.slice(0,3) + '-' + v.slice(3);
+        else input.value = v.slice(0,3) + '-' + v.slice(3,5) + '-' + v.slice(5,10);
+    }
+    document.getElementById('issuerPhone').addEventListener('input', function(){ formatPhone(this); });
+    document.getElementById('issuerBizNum').addEventListener('input', function(){ formatBizNum(this); });
+    document.getElementById('clientPhone').addEventListener('input', function(){ formatPhone(this); });
 
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("issuerPhone").addEventListener("input", function(){ formatPhone(this); });
-    document.getElementById("issuerBizNum").addEventListener("input", function(){ formatBizNum(this); });
-    document.getElementById("clientPhone").addEventListener("input", function(){ formatPhone(this); });
-});
+    // 견적서 생성
+    document.getElementById('btnGenerate').addEventListener('click', function() {
+        var issuerName = document.getElementById('issuerName').value.trim();
+        var issuerPerson = document.getElementById('issuerPerson').value.trim();
+        var clientName = document.getElementById('clientName').value.trim();
+        if (!issuerName || !issuerPerson) { alert('회사명과 담당자명을 입력해주세요.'); return; }
+        if (!clientName) { alert('고객명을 입력해주세요.'); return; }
+        var rows = document.querySelectorAll('.irow');
+        if (!rows.length) { alert('제품을 하나 이상 추가해주세요.'); return; }
+
+        var issuerBizNum = document.getElementById('issuerBizNum').value.trim();
+        var issuerPhone = document.getElementById('issuerPhone').value.trim();
+        var clientPhone = document.getElementById('clientPhone').value.trim();
+        var clientAddress = document.getElementById('clientAddress').value.trim();
+        var memo = document.getElementById('memo').value.trim();
+
+        var itemsHTML = '';
+        var totalMonthly = 0, totalContract = 0;
+        rows.forEach(function(row, i) {
+            var inputs = row.querySelectorAll('input');
+            var name = inputs[0].value.trim() || '(미입력)';
+            var monthly = parseFloat(inputs[1].value) || 0;
+            var months = parseFloat(inputs[2].value) || 0;
+            var disc = parseFloat(inputs[3].value) || 0;
+            var discMonthly = Math.round(monthly * (1 - disc / 100));
+            var sub = Math.round(discMonthly * months);
+            totalMonthly += discMonthly;
+            totalContract += sub;
+            itemsHTML += '<tr>' +
+                '<td>' + (i+1) + '. ' + name + '</td>' +
+                '<td class="mc">' + discMonthly.toLocaleString() + '원' + (disc > 0 ? '<br><span style="font-size:10px;color:#e74c3c">(' + disc + '% 할인)</span>' : '') + '</td>' +
+                '<td>' + months + '개월</td>' +
+                '<td class="tc">' + sub.toLocaleString() + '원</td>' +
+                '</tr>';
+        });
+
+        document.getElementById('quoteDoc').innerHTML =
+            '<div class="qh"><div class="qt">렌탈 견적서</div><div class="qm"><div><strong>견적번호</strong> ' + QUOTE_NUM + '</div><div><strong>발행일자</strong> ' + dateStr + '</div><div><strong>유효기간</strong> 발행일로부터 30일</div></div></div>' +
+            '<div class="qparties">' +
+                '<div class="qparty"><div class="qplabel">수 신</div><div class="qpname">' + clientName + ' 귀하</div><div class="qpinfo">' + (clientPhone ? '📞 ' + clientPhone : '') + (clientPhone && clientAddress ? '<br>' : '') + (clientAddress ? '📍 ' + clientAddress : '') + (!clientPhone && !clientAddress ? '-' : '') + '</div></div>' +
+                '<div class="qparty"><div class="qplabel">발 신</div><div class="qpname">' + issuerName + '</div><div class="qpinfo">' + (issuerBizNum ? '사업자등록번호: ' + issuerBizNum + '<br>' : '') + '담당자: ' + issuerPerson + (issuerPhone ? '<br>📞 ' + issuerPhone : '') + '</div></div>' +
+            '</div>' +
+            '<div class="qsum"><div><div class="sl">월 렌탈료 합계 (VAT포함)</div><div class="sv">' + totalMonthly.toLocaleString() + ' 원/월</div></div><div style="text-align:right"><div class="sl">총 약정 금액</div><div class="sv">' + totalContract.toLocaleString() + ' 원</div><div class="sn">※ 부가세(VAT 10%) 포함 금액</div></div></div>' +
+            '<table class="qt2"><thead><tr><th style="width:38%">제품명</th><th style="width:22%">월 렌탈료 (VAT포함)</th><th style="width:15%">약정기간</th><th style="width:20%">약정 총액</th></tr></thead><tbody>' + itemsHTML + '</tbody></table>' +
+            '<div class="qtotals"><div class="qtbox"><div class="qtrow"><span>월 렌탈료 합계</span><span>' + totalMonthly.toLocaleString() + ' 원/월</span></div><div class="qtrow grand"><span>총 견적 금액</span><span>' + totalContract.toLocaleString() + ' 원</span></div></div></div>' +
+            (memo ? '<div class="qmemo"><div class="qmemo-t">📌 메모 / 특이사항</div><div class="qmemo-c">' + memo.replace(/\n/g, '<br>') + '</div></div>' : '') +
+            '<div class="qfoot"><div class="val">※ 본 견적서는 발행일로부터 <strong>30일간</strong> 유효합니다.<br>※ 모든 금액은 부가세(VAT 10%) <strong>포함</strong> 금액입니다.<br>※ 문의사항은 담당자에게 연락 주시기 바랍니다.</div><div class="iss"><div class="ico">' + issuerName + '</div><div class="ip">담당 : ' + issuerPerson + '</div>' + (issuerPhone ? '<div class="iph">' + issuerPhone + '</div>' : '') + '</div></div>';
+
+        window._qClient = clientName;
+        window._qNum = QUOTE_NUM;
+        document.getElementById('inputScreen').style.display = 'none';
+        document.getElementById('previewScreen').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 수정하기
+    document.getElementById('btnBack').addEventListener('click', function() {
+        document.getElementById('previewScreen').style.display = 'none';
+        document.getElementById('inputScreen').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // PDF 저장
+    document.getElementById('btnDownload').addEventListener('click', async function() {
+        var btn = this;
+        btn.disabled = true; btn.textContent = '⏳ PDF 생성 중...';
+        try {
+            var el = document.getElementById('quoteDoc');
+            var canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
+            var imgData = canvas.toDataURL('image/jpeg', 0.95);
+            var pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            var pW = pdf.internal.pageSize.getWidth();
+            var pH = pdf.internal.pageSize.getHeight();
+            var imgH = pW * (canvas.height / canvas.width);
+            if (imgH <= pH) {
+                pdf.addImage(imgData, 'JPEG', 0, 0, pW, imgH);
+            } else {
+                var yOffset = 0, remaining = imgH;
+                while (remaining > 0) {
+                    pdf.addImage(imgData, 'JPEG', 0, -yOffset, pW, imgH);
+                    remaining -= pH; yOffset += pH;
+                    if (remaining > 0) pdf.addPage();
+                }
+            }
+            pdf.save('렌탈견적서_' + window._qClient + '_' + window._qNum + '.pdf');
+        } catch(e) { alert('PDF 생성 오류: ' + e.message); }
+        finally { btn.disabled = false; btn.textContent = '📥 PDF 저장하기'; }
+    });
+
+    // 초기 제품 1개 추가
+    document.getElementById('btnAddItem').click();
+})();
 </script>
 </body>
 </html>
